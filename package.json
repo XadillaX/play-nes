@@ -1,0 +1,33 @@
+{
+  "name": "nes",
+  "version": "1.0.0",
+  "description": "Desktop NES emulator in Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XadillaX/nodenes.git"
+  },
+  "keywords": [
+    "NES"
+  ],
+  "author": "XadillaX <i@233.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XadillaX/nodenes/issues"
+  },
+  "homepage": "https://github.com/XadillaX/nodenes#readme",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "eslint": "^6.8.0",
+    "eslint-config-egg": "^9.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "sfml.js": "0.0.1-preview.35"
+  }
+}
