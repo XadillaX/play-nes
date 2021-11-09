@@ -15,6 +15,9 @@ export enum IORegisters {
 }
 
 export class MainBus {
+  #ram: Byte[] = [];
+  #extRAM: Byte[] = []
+
   write(addr: Address, value: Byte): void {
     // TODO
     addr;
