@@ -1,4 +1,5 @@
 import { Address, Byte } from './types';
+import { Mapper } from './mapper';
 
 export enum IORegisters {
   PPUCTRL = 0x2000,
@@ -16,7 +17,15 @@ export enum IORegisters {
 
 export class MainBus {
   #ram: Byte[] = [];
-  #extRAM: Byte[] = []
+  #extRAM: Byte[] = [];
+  #mapper: Mapper;
+
+  #writeCallbacks: Map<IORegisters, (byte: Byte) => void> = new Map();
+  #readCallbacks: Map<IORegisters, () => Byte> = new Map();
+
+  constructor() {
+    for (let i = 0; i < 0x800; i++) this.#ram.push(0);
+  }
 
   write(addr: Address, value: Byte): void {
     // TODO
