@@ -1,6 +1,6 @@
-import { Address, Byte } from '../types';
-import { ByteArrayAndIdx, Mapper, Type } from '../mapper';
+import { Address, Byte, ByteArrayAndIdx } from '../types';
 import { Cartridge } from '../cartridge';
+import { Mapper, Type } from '../mapper';
 
 export class MapperCNROM extends Mapper {
   oneBank: boolean;

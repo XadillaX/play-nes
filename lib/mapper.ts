@@ -1,5 +1,5 @@
 import { Cartridge } from './cartridge';
-import { Address, Byte } from './types';
+import { Address, Byte, ByteArrayAndIdx } from './types';
 import {
   MapperCNROM,
   MapperNROM,
@@ -20,11 +20,6 @@ export enum NameTableMirroring {
   FourScreen = 8,
   OneScreenLower,
   OneScreenHigher,
-}
-
-export interface ByteArrayAndIdx {
-  arr: Byte[];
-  idx: number;
 }
 
 export class Mapper {

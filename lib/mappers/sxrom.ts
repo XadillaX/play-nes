@@ -1,6 +1,6 @@
-import { Address, Byte } from '../types';
-import { ByteArrayAndIdx, Mapper, NameTableMirroring, Type } from '../mapper';
+import { Address, Byte, ByteArrayAndIdx } from '../types';
 import { Cartridge } from '../cartridge';
+import { Mapper, NameTableMirroring, Type } from '../mapper';
 
 export class MapperSxROM extends Mapper {
   mirroringCallback: () => void;
