@@ -30,11 +30,12 @@ export class MapperUxROM extends Mapper {
 
   readPRG(addr: Address): Byte {
     if (addr < 0xc000) {
-      return this.cartridge.getROM()[((addr - 0x8000) & 0x3fff) |
-        (this.selectPRG << 14)];
-    } else {
-      return this.lastBankPtr.arr[this.lastBankPtr.idx + (addr & 0x3fff)];
+      return this.cartridge.getROM()[
+        ((addr - 0x8000) & 0x3fff) | (this.selectPRG << 14)
+      ];
     }
+
+    return this.lastBankPtr.arr[this.lastBankPtr.idx + (addr & 0x3fff)];
   }
 
   writePRG(_: Address, value: Byte) {
@@ -47,20 +48,20 @@ export class MapperUxROM extends Mapper {
         arr: this.cartridge.getROM(),
         idx: ((addr - 0x8000) & 0x3fff) | (this.selectPRG << 14),
       };
-    } else {
-      return {
-        arr: this.lastBankPtr.arr,
-        idx: this.lastBankPtr.idx + (addr & 0x3fff),
-      };
     }
+
+    return {
+      arr: this.lastBankPtr.arr,
+      idx: this.lastBankPtr.idx + (addr & 0x3fff),
+    };
   }
 
   readCHR(addr: Address): Byte {
     if (this.usesCharacterRAM) {
       return this.characterRAM[addr];
-    } else {
-      return this.cartridge.getVROM()[addr];
     }
+
+    return this.cartridge.getVROM()[addr];
   }
 
   writeCHR(addr: Address, value: Byte) {

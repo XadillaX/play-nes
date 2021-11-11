@@ -45,20 +45,28 @@ export class VirtualScreen {
         this.vertices.setVertex(index, tempVertex);
 
         // top-right
-        tempVertex.position = Vector2F.add(coord2d, new Vector2F(this.pixelSize, 0));
+        tempVertex.position = Vector2F.add(
+          coord2d,
+          new Vector2F(this.pixelSize, 0));
         this.vertices.setVertex(index + 1, tempVertex);
 
         // bottom-right
-        tempVertex.position = Vector2F.add(coord2d, new Vector2F(this.pixelSize, this.pixelSize));
+        tempVertex.position = Vector2F.add(
+          coord2d,
+          new Vector2F(this.pixelSize, this.pixelSize));
         this.vertices.setVertex(index + 2, tempVertex);
 
         // Triangle-2
         // bottom-right
-        tempVertex.position = Vector2F.add(coord2d, new Vector2F(this.pixelSize, this.pixelSize));
+        tempVertex.position = Vector2F.add(
+          coord2d,
+          new Vector2F(this.pixelSize, this.pixelSize));
         this.vertices.setVertex(index + 3, tempVertex);
 
         // bottom-left
-        tempVertex.position = Vector2F.add(coord2d, new Vector2F(0, this.pixelSize));
+        tempVertex.position = Vector2F.add(
+          coord2d,
+          new Vector2F(0, this.pixelSize));
         this.vertices.setVertex(index + 4, tempVertex);
 
         // top-left

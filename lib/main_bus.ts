@@ -17,15 +17,13 @@ export enum IORegisters {
 
 const emptyReadCallback = (addr: Address): Byte => {
   console.error(
-    'No read callback registered for I/O register at ' +
-    addr.toString(16));
+    'No read callback registered for I/O register at ' + addr.toString(16));
   return 0;
 };
 
-const emptyWriteCallback = (addr: Address/* , _: Byte */): void => {
+const emptyWriteCallback = (addr: Address /* , _: Byte */): void => {
   console.error(
-    'No write callback registered for I/O register at ' +
-    addr.toString(16));
+    'No write callback registered for I/O register at ' + addr.toString(16));
 };
 
 export type WriteCallback = (byte: Byte) => void;
@@ -73,11 +71,14 @@ export class MainBus {
       return this.#ram[addr & 0x7ff];
     } else if (addr < 0x4020) {
       if (addr < 0x4000) { // PPU registers, mirrored
-        return (this.#readCallbacks.get(addr & 0x2007) ||
-          emptyReadCallback.bind(null, addr))();
+        return (
+          this.#readCallbacks.get(addr & 0x2007) ||
+          emptyReadCallback.bind(null, addr)
+        )();
       } else if (addr < 0x4018 && addr >= 0x4014) { // Only *some* IO registers
-        return (this.#readCallbacks.get(addr) ||
-          emptyReadCallback.bind(null, addr))();
+        return (
+          this.#readCallbacks.get(addr) || emptyReadCallback.bind(null, addr)
+        )();
       }
 
       console.error(`Read access attempt at: ${addr.toString(16)}.`);
@@ -117,12 +118,16 @@ export class MainBus {
     if (addr < 0x2000) {
       this.#ram[addr & 0x7ff] = value;
     } else if (addr < 0x4020) {
-      if (addr < 0x4000) { // PPU registers, mirrored
-        (this.#writeCallbacks.get(addr & 0x2007) ||
-          emptyWriteCallback.bind(null, addr))(value);
-      } else if (addr < 0x4017 && addr >= 0x4014) { // Only *some* IO registers
-        (this.#writeCallbacks.get(addr) ||
-          emptyWriteCallback.bind(null, addr))(value);
+      if (addr < 0x4000) {
+        // PPU registers, mirrored
+        (
+          this.#writeCallbacks.get(addr & 0x2007) ||
+          emptyWriteCallback.bind(null, addr)
+        )(value);
+      } else if (addr < 0x4017 && addr >= 0x4014) {
+        // Only *some* IO registers
+        (this.#writeCallbacks.get(addr) || emptyWriteCallback.bind(null, addr))(
+          value);
       } else {
         console.error(`Write access attempt at: ${addr.toString(16)}.`);
       }

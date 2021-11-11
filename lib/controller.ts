@@ -17,7 +17,7 @@ export enum Buttons {
 export class Controller {
   #strobe: boolean;
   #keyStates: number;
-  #keyBindings: Keyboard.Keys[];
+  #keyBindings: Keyboard.Keys[] = [];
 
   constructor() {
     this.#keyStates = 0;
@@ -36,12 +36,13 @@ export class Controller {
     if (!this.#strobe) {
       this.#keyStates = 0;
       let shift = 0;
-      for (let button: Buttons = Buttons.A;
+      for (
+        let button: Buttons = Buttons.A;
         button < Buttons.TotalButtons;
-        button++) {
-        this.#keyStates |= ((Keyboard.isKeyPressed(this.#keyBindings[button]) ?
-          1 :
-          0) << shift);
+        button++
+      ) {
+        this.#keyStates |=
+          (Keyboard.isKeyPressed(this.#keyBindings[button]) ? 1 : 0) << shift;
         ++shift;
       }
     }
@@ -52,7 +53,7 @@ export class Controller {
     if (this.#strobe) {
       ret = Keyboard.isKeyPressed(this.#keyBindings[Buttons.A]) ? 1 : 0;
     } else {
-      ret = (this.#keyStates & 1);
+      ret = this.#keyStates & 1;
       this.#keyStates >>= 1;
     }
 

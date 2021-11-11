@@ -96,9 +96,9 @@ export class MapperSxROM extends Mapper {
   readPRG(addr: Address): Byte {
     if (addr < 0xc000) {
       return this.firstBankPRG.arr[this.firstBankPRG.idx + (addr & 0x3fff)];
-    } else {
-      return this.secondBankPRG.arr[this.secondBankPRG.idx + (addr & 0x3fff)];
     }
+
+    return this.secondBankPRG.arr[this.secondBankPRG.idx + (addr & 0x3fff)];
   }
 
   writePRG(addr: Address, value: Byte) {
@@ -111,10 +111,20 @@ export class MapperSxROM extends Mapper {
       if (this.writeCounter === 5) {
         if (addr < 0x9fff) {
           switch (this.tempRegister & 0x3) {
-            case 0: this.mirroring = NameTableMirroring.OneScreenLower; break;
-            case 1: this.mirroring = NameTableMirroring.OneScreenHigher; break;
-            case 2: this.mirroring = NameTableMirroring.Vertical; break;
-            case 3: this.mirroring = NameTableMirroring.Horizontal; break;
+            case 0:
+              this.mirroring = NameTableMirroring.OneScreenLower;
+              break;
+            case 1:
+              this.mirroring = NameTableMirroring.OneScreenHigher;
+              break;
+            case 2:
+              this.mirroring = NameTableMirroring.Vertical;
+              break;
+            case 3:
+              this.mirroring = NameTableMirroring.Horizontal;
+              break;
+            default:
+              break;
           }
 
           this.mirroringCallback();
@@ -124,7 +134,7 @@ export class MapperSxROM extends Mapper {
           this.#calculatePRGPointers();
 
           // Recalculate CHR pointers.
-          if (this.modeCHR == 0) { // One 8KB bank.
+          if (this.modeCHR === 0) { // One 8KB bank.
             this.firstBankCHR = {
               arr: this.cartridge.getVROM(),
               idx: 0x1000 * (this.regCHR0 | 1),
@@ -158,9 +168,9 @@ export class MapperSxROM extends Mapper {
             };
           }
         } else {
-          //TODO: PRG-RAM
+          // TODO: PRG-RAM
           if ((this.tempRegister & 0x10) === 0x10) {
-              console.log('PRG-RAM activated.');
+            console.log('PRG-RAM activated.');
           }
 
           this.tempRegister &= 0xf;
@@ -171,7 +181,8 @@ export class MapperSxROM extends Mapper {
         this.tempRegister = 0;
         this.writeCounter = 0;
       }
-    } else { // Reset
+    } else {
+      // Reset
       this.tempRegister = 0;
       this.writeCounter = 0;
       this.modePRG = 3;
@@ -185,12 +196,12 @@ export class MapperSxROM extends Mapper {
         arr: this.firstBankPRG.arr,
         idx: this.firstBankPRG.idx + (addr & 0x3fff),
       };
-    } else {
-      return {
-        arr: this.secondBankPRG.arr,
-        idx: this.secondBankPRG.idx + (addr & 0x3fff),
-      };
     }
+
+    return {
+      arr: this.secondBankPRG.arr,
+      idx: this.secondBankPRG.idx + (addr & 0x3fff),
+    };
   }
 
   readCHR(addr: Address): Byte {
@@ -198,9 +209,9 @@ export class MapperSxROM extends Mapper {
       return this.characterRAM[addr];
     } else if (addr < 0x1000) {
       return this.firstBankCHR.arr[this.firstBankCHR.idx + addr];
-    } else {
-      return this.secondBankCHR.arr[this.secondBankCHR.idx + (addr & 0xfff)];
     }
+
+    return this.secondBankCHR.arr[this.secondBankCHR.idx + (addr & 0xfff)];
   }
 
   writeCHR(addr: Address, value: Byte) {

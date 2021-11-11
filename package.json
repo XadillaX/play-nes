@@ -4,7 +4,7 @@
   "description": "Desktop NES emulator in Node.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clear": "rm -rf *.d.ts *.js && rm -rf lib/*.d.ts lib/*.js && rm -rf lib/**/*.d.ts lib/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/XadillaX/nodenes#readme",
   "devDependencies": {
     "@types/node": "^16.11.6",
+    "@types/nomnom": "^0.0.29",
     "eslint": "^6.8.0",
     "eslint-config-egg": "^9.0.0",
     "eslint-plugin-import": "^2.25.2",
@@ -28,6 +29,8 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
+    "mz-modules": "^2.1.0",
+    "nomnom": "^1.8.1",
     "sfml.js": "0.0.1-preview.36"
   }
 }

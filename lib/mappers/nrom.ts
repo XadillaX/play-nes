@@ -29,9 +29,10 @@ export class MapperNROM extends Mapper {
   readPRG(addr: Address): Byte {
     if (!this.oneBank) {
       return this.cartridge.getROM()[addr - 0x8000];
-    } else { // mirrored
-      return this.cartridge.getROM()[(addr - 0x8000) & 0x3fff];
     }
+
+    // mirrored
+    return this.cartridge.getROM()[(addr - 0x8000) & 0x3fff];
   }
 
   writePRG(addr: Address, value: Byte) {
@@ -41,17 +42,17 @@ export class MapperNROM extends Mapper {
   getPagePtr(addr: Address): ByteArrayAndIdx {
     if (!this.oneBank) {
       return { arr: this.cartridge.getROM(), idx: addr - 0x8000 };
-    } else {
-      return { arr: this.cartridge.getROM(), idx: (addr - 0x8000) & 0x3fff };
     }
+
+    return { arr: this.cartridge.getROM(), idx: (addr - 0x8000) & 0x3fff };
   }
 
   readCHR(addr: Address): Byte {
     if (this.usesCharacterRAM) {
       return this.characterRAM[addr];
-    } else {
-      return this.cartridge.getVROM()[addr];
     }
+
+    return this.cartridge.getVROM()[addr];
   }
 
   writeCHR(addr: Address, value: Byte) {

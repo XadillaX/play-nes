@@ -41,7 +41,7 @@ export class Cartridge {
     if (buff.slice(0, 4).toString() !== 'NES\x1A') {
       throw new Error(
         'Not a valid iNES image. Magic Number: ' +
-        `${buff.slice(0, 4).toString()}, valid magic number: N E S 1a.`);
+          `${buff.slice(0, 4).toString()}, valid magic number: N E S 1a.`);
     }
 
     console.log('Reading header, it dictates:');
@@ -58,8 +58,8 @@ export class Cartridge {
     this.nameTableMirroring = buff.readUInt8(6) & 0xb;
     console.log(`Name Table Mirroring: ${this.nameTableMirroring}.`);
 
-    this.mapperNumber = ((buff.readUInt8(6) >> 4) & 0xf) |
-      buff.readUInt8(7) & 0xf0;
+    this.mapperNumber =
+      ((buff.readUInt8(6) >> 4) & 0xf) | (buff.readUInt8(7) & 0xf0);
     console.log(`Mapper: #${this.mapperNumber}.`);
 
     this.extendedRAM = (buff.readUInt8(6) & 0x2) !== 0;
@@ -69,7 +69,7 @@ export class Cartridge {
       throw new Error('Trainer is not supported.');
     }
 
-    if ((buff.readUInt8(0xa) & 0x3) === 0x2 || (buff.readUInt8(0xa) & 0x1)) {
+    if ((buff.readUInt8(0xa) & 0x3) === 0x2 || buff.readUInt8(0xa) & 0x1) {
       throw new Error('PAL ROM is not supporetd.');
     } else {
       console.log('ROM is NTSC compatible.');
@@ -90,9 +90,11 @@ export class Cartridge {
         throw new Error('Reading CHR-ROM from image file failed.');
       }
 
-      for (let i = 0x10 + 0x4000 * banks;
+      for (
+        let i = 0x10 + 0x4000 * banks;
         i < 0x10 + 0x4000 * banks + 0x2000 * vbanks;
-        i++) {
+        i++
+      ) {
         this.chrROM.push(buff.readUInt8(i));
       }
     } else {

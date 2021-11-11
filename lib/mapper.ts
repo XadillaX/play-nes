@@ -1,11 +1,11 @@
 import { Cartridge } from './cartridge';
 import { Address, Byte, ByteArrayAndIdx } from './types';
-import {
-  MapperCNROM,
-  MapperNROM,
-  MapperSxROM,
-  MapperUxROM,
-} from './mappers';
+// import { MapperCNROM, MapperNROM, MapperSxROM, MapperUxROM } from './mappers';
+
+let MapperCNROM: any;
+let MapperNROM: any;
+let MapperSxROM: any;
+let MapperUxROM: any;
 
 export enum Type {
   NROM = 0,
@@ -29,13 +29,26 @@ export class Mapper {
   static createMapper(
     mapperT: Type,
     cart: Cartridge,
-    mirroringCb: () => void = () => {}
+    mirroringCb: () => void = () => {
+      /**/
+    },
   ) {
+    if (!MapperNROM) {
+      ({ MapperNROM, MapperCNROM, MapperSxROM, MapperUxROM } = require('./mappers'));
+    }
+
+    mapperT &= 0x3;
     switch (mapperT) {
-      case Type.NROM: return new MapperNROM(cart);
-      case Type.SxROM: return new MapperSxROM(cart, mirroringCb);
-      case Type.UxROM: return new MapperUxROM(cart);
-      case Type.CNROM: return new MapperCNROM(cart);
+      case Type.NROM:
+        return new MapperNROM(cart);
+      case Type.SxROM:
+        return new MapperSxROM(cart, mirroringCb);
+      case Type.UxROM:
+        return new MapperUxROM(cart);
+      case Type.CNROM:
+        return new MapperCNROM(cart);
+      default:
+        throw new Error(`Cannot create Mapper ${mapperT}.`);
     }
   }
 

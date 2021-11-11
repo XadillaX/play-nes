@@ -19,9 +19,10 @@ export class MapperCNROM extends Mapper {
   readPRG(addr: Address): Byte {
     if (!this.oneBank) {
       return this.cartridge.getROM()[addr - 0x8000];
-    } else { // mirrored
-      return this.cartridge.getROM()[(addr - 0x8000) & 0x3fff];
     }
+
+    // mirrored
+    return this.cartridge.getROM()[(addr - 0x8000) & 0x3fff];
   }
 
   writePRG(_: Address, value: Byte) {
@@ -31,16 +32,17 @@ export class MapperCNROM extends Mapper {
   getPagePtr(addr: Address): ByteArrayAndIdx {
     if (!this.oneBank) {
       return { arr: this.cartridge.getROM(), idx: addr - 0x8000 };
-    } else {
-      return { arr: this.cartridge.getROM(), idx: (addr - 0x8000) & 0x3fff };
     }
+
+    return { arr: this.cartridge.getROM(), idx: (addr - 0x8000) & 0x3fff };
   }
 
   readCHR(addr: Address): Byte {
     return this.cartridge.getVROM()[addr | (this.selectCHR << 13)];
   }
 
-  writeCHR(addr: Address, __: Byte) {
+  writeCHR(addr: Address, _: Byte) {
+    _;
     console.log(`Read-only CHR memory write attempt at ${addr.toString(16)}.`);
   }
 }

@@ -28,16 +28,19 @@ export class CPU {
   bus: MainBus;
 
   #executeBranch(opcode: Byte): boolean {
-    if ((opcode & CPUOpcodes.branchInstructionMask) ===
-        CPUOpcodes.branchInstructionMaskResult) {
+    if (
+      (opcode & CPUOpcodes.branchInstructionMask) ===
+      CPUOpcodes.branchInstructionMaskResult
+    ) {
       // branch is initialized to the condition required (for the flag specified
       // later).
       let branch: boolean = (opcode & CPUOpcodes.branchConditionMask) !== 0;
 
       // Set branch to true if the given condition is met by the given flag.
       // We use xnor here, it is true if either both operands are true or false.
-      switch ((opcode >> CPUOpcodes.branchOnFlagShift) as
-          CPUOpcodes.BranchOnFlag) {
+      switch (
+        (opcode >> CPUOpcodes.branchOnFlagShift) as CPUOpcodes.BranchOnFlag
+      ) {
         case CPUOpcodes.BranchOnFlag.Negative: {
           branch = branch === this.fN;
           break;
@@ -58,7 +61,8 @@ export class CPU {
           break;
         }
 
-        default: return false;
+        default:
+          return false;
       }
 
       if (branch) {
@@ -81,7 +85,8 @@ export class CPU {
   // These functions return true if they succeed
   #executeImplied(opcode: CPUOpcodes.OperationImplied): boolean {
     switch (opcode) {
-      case CPUOpcodes.OperationImplied.NOP: break;
+      case CPUOpcodes.OperationImplied.NOP:
+        break;
       case CPUOpcodes.OperationImplied.BRK: {
         this.interrupt(InterruptType.BRK_);
         break;
@@ -90,7 +95,7 @@ export class CPU {
       case CPUOpcodes.OperationImplied.JSR: {
         // Push address of next instruction - 1, thus r_PC + 1 instead of
         // r_PC + 2 since r_PC and r_PC + 1 are address of subroutine.
-        this.#pushStack(this.rPC + 1 >> 8);
+        this.#pushStack((this.rPC + 1) >> 8);
         this.#pushStack(this.rPC + 1);
         this.rPC = this.#readAddress(this.rPC);
         break;
@@ -131,21 +136,23 @@ export class CPU {
         // the beginning of that page rather than the beginning of the next
         // Recreating here:
         const page: Address = location & 0xff00;
-        this.rPC = this.bus.read(location) |
-          this.bus.read(page | ((location + 1) & 0xff)) << 8;
+        this.rPC =
+          this.bus.read(location) |
+          (this.bus.read(page | ((location + 1) & 0xff)) << 8);
 
         break;
       }
 
       case CPUOpcodes.OperationImplied.PHP: {
-        const flags: Byte = this.fN as any << 7 |
-          this.fV as any << 6 |
-          1 << 5 | // supposed to always be 1
-          1 << 4 | // PHP pushes with the B flag as 1, no matter what
-          this.fD as any << 3 |
-          this.fI as any << 2 |
-          this.fZ as any << 1 |
-          this.fC as any;
+        const flags: Byte =
+          ((this.fN as any) << 7) |
+          ((this.fV as any) << 6) |
+          (1 << 5) | // supposed to always be 1
+          (1 << 4) | // PHP pushes with the B flag as 1, no matter what
+          ((this.fD as any) << 3) |
+          ((this.fI as any) << 2) |
+          ((this.fZ as any) << 1) |
+          (this.fC as any);
 
         this.#pushStack(flags);
         break;
@@ -267,7 +274,8 @@ export class CPU {
         break;
       }
 
-      default: return false;
+      default:
+        return false;
     }
 
     return true;
@@ -277,8 +285,9 @@ export class CPU {
     if ((opcode & CPUOpcodes.instructionModeMask) === 0x0) {
       let location: Address = 0;
       switch (
-        ((opcode & CPUOpcodes.addrModeMask) >> CPUOpcodes.addrModeShift) as
-          CPUOpcodes.AddrMode2) {
+        ((opcode & CPUOpcodes.addrModeMask) >>
+          CPUOpcodes.addrModeShift) as CPUOpcodes.AddrMode2
+      ) {
         case CPUOpcodes.AddrMode2.Immediate_:
           location = this.rPC++;
           break;
@@ -310,8 +319,9 @@ export class CPU {
 
       let operand = 0;
       switch (
-        ((opcode & CPUOpcodes.operationMask) >> CPUOpcodes.operationShift) as
-          CPUOpcodes.Operation0) {
+        ((opcode & CPUOpcodes.operationMask) >>
+          CPUOpcodes.operationShift) as CPUOpcodes.Operation0
+      ) {
         case CPUOpcodes.Operation0.BIT:
           operand = this.bus.read(location);
           this.fZ = !(this.rA & operand);
@@ -342,7 +352,8 @@ export class CPU {
           break;
         }
 
-        default: return false;
+        default:
+          return false;
       }
 
       return true;
@@ -354,17 +365,19 @@ export class CPU {
   #executeType1(opcode: Byte): boolean {
     if ((opcode & CPUOpcodes.instructionModeMask) === 0x1) {
       let location: Address = 0; // Location of the operand, could be in RAM.
-      const op: CPUOpcodes.Operation1 = (opcode & CPUOpcodes.operationMask) >>
-        CPUOpcodes.operationShift;
+      const op: CPUOpcodes.Operation1 =
+        (opcode & CPUOpcodes.operationMask) >> CPUOpcodes.operationShift;
       switch (
-        ((opcode & CPUOpcodes.addrModeMask) >> CPUOpcodes.addrModeShift) as
-          CPUOpcodes.AddrMode1) {
+        ((opcode & CPUOpcodes.addrModeMask) >>
+          CPUOpcodes.addrModeShift) as CPUOpcodes.AddrMode1
+      ) {
         case CPUOpcodes.AddrMode1.IndexedIndirectX: {
           const zeroAddr: Byte = (this.rX + this.bus.read(this.rPC++)) & 0xff;
 
           // Addresses wrap in zero page mode, thus pass through a mask
-          location = this.bus.read(zeroAddr & 0xff) |
-            this.bus.read((zeroAddr + 1) & 0xff) << 8;
+          location =
+            this.bus.read(zeroAddr & 0xff) |
+            (this.bus.read((zeroAddr + 1) & 0xff) << 8);
           break;
         }
 
@@ -386,8 +399,9 @@ export class CPU {
 
         case CPUOpcodes.AddrMode1.IndirectY: {
           const zeroAddr: Byte = this.bus.read(this.rPC++);
-          location = this.bus.read(zeroAddr & 0xff) |
-            this.bus.read((zeroAddr + 1) & 0xff) << 8;
+          location =
+            this.bus.read(zeroAddr & 0xff) |
+            (this.bus.read((zeroAddr + 1) & 0xff) << 8);
           if (op !== CPUOpcodes.Operation1.STA) {
             this.#setPageCrossed(location, location + this.rY);
           }
@@ -423,7 +437,8 @@ export class CPU {
           break;
         }
 
-        default: false;
+        default:
+          false;
       }
 
       switch (op) {
@@ -474,8 +489,8 @@ export class CPU {
         case CPUOpcodes.Operation1.SBC: {
           // High carry means "no borrow", thus negate and subtract.
           const subtrahend: number = this.bus.read(location);
-          const diff: number = this.rA - subtrahend -
-            (this.fC ? 0 : 1) & 0xffff;
+          const diff: number =
+            (this.rA - subtrahend - (this.fC ? 0 : 1)) & 0xffff;
 
           // If the ninth bit is 1, the resulting number is
           // negative => borrow => low carry
@@ -495,7 +510,8 @@ export class CPU {
           break;
         }
 
-        default: return false;
+        default:
+          return false;
       }
 
       return true;
@@ -507,8 +523,8 @@ export class CPU {
   #executeType2(opcode: Byte): boolean {
     if ((opcode & CPUOpcodes.instructionModeMask) === 2) {
       let location: Address = 0;
-      const op: CPUOpcodes.Operation2 = (opcode & CPUOpcodes.operationMask) >>
-        CPUOpcodes.operationShift;
+      const op: CPUOpcodes.Operation2 =
+        (opcode & CPUOpcodes.operationMask) >> CPUOpcodes.operationShift;
       const addrMode: CPUOpcodes.AddrMode2 =
         (opcode & CPUOpcodes.addrModeMask) >> CPUOpcodes.addrModeShift;
       switch (addrMode) {
@@ -522,7 +538,8 @@ export class CPU {
           break;
         }
 
-        case CPUOpcodes.AddrMode2.Accumulator: break;
+        case CPUOpcodes.AddrMode2.Accumulator:
+          break;
 
         case CPUOpcodes.AddrMode2.Absolute_: {
           location = this.#readAddress(this.rPC);
@@ -533,8 +550,10 @@ export class CPU {
         case CPUOpcodes.AddrMode2.Indexed: {
           location = this.bus.read(this.rPC++);
           let index: Byte;
-          if (op === CPUOpcodes.Operation2.LDX ||
-              op === CPUOpcodes.Operation2.STX) {
+          if (
+            op === CPUOpcodes.Operation2.LDX ||
+            op === CPUOpcodes.Operation2.STX
+          ) {
             index = this.rY;
           } else {
             index = this.rX;
@@ -550,8 +569,10 @@ export class CPU {
           location = this.bus.read(this.rPC++);
           this.rPC += 2;
           let index: Byte;
-          if (op === CPUOpcodes.Operation2.LDX ||
-              op === CPUOpcodes.Operation2.STX) {
+          if (
+            op === CPUOpcodes.Operation2.LDX ||
+            op === CPUOpcodes.Operation2.STX
+          ) {
             index = this.rY;
           } else {
             index = this.rX;
@@ -561,7 +582,8 @@ export class CPU {
           break;
         }
 
-        default: return false;
+        default:
+          return false;
       }
 
       let operand = 0;
@@ -573,15 +595,16 @@ export class CPU {
             this.fC = (this.rA & 0x80) !== 0;
             this.rA <<= 1;
             // If Rotating, set the bit-0 to the the previous carry.
-            this.rA = this.rA |
-              ((prevC && (op === CPUOpcodes.Operation2.ROL)) ? 1 : 0);
+            this.rA =
+              this.rA | (prevC && op === CPUOpcodes.Operation2.ROL ? 1 : 0);
             this.rA = this.rA & 0xff;
             this.#setZN(this.rA);
           } else {
             operand = this.bus.read(location);
             this.fC = (operand & 0x80) !== 0;
-            operand = operand << 1 |
-              ((prevC && (op === CPUOpcodes.Operation2.ROL)) ? 1 : 0);
+            operand =
+              (operand << 1) |
+              (prevC && op === CPUOpcodes.Operation2.ROL ? 1 : 0);
             operand = operand & 0xff;
             this.#setZN(operand);
             this.bus.write(location, operand);
@@ -596,15 +619,17 @@ export class CPU {
             this.fC = (this.rA & 1) !== 0;
             this.rA >>= 1;
             // If Rotating, set the bit-7 to the previous carry.
-            this.rA = this.rA |
-              ((prevC && (op === CPUOpcodes.Operation2.ROR)) ? 1 : 0) << 7;
+            this.rA =
+              this.rA |
+              ((prevC && op === CPUOpcodes.Operation2.ROR ? 1 : 0) << 7);
             this.rA = this.rA & 0xff;
             this.#setZN(this.rA);
           } else {
             operand = this.bus.read(location);
             this.fC = (operand & 1) !== 0;
-            operand = operand >> 1 |
-              ((prevC && (op === CPUOpcodes.Operation2.ROR)) ? 1 : 0) << 7;
+            operand =
+              (operand >> 1) |
+              ((prevC && op === CPUOpcodes.Operation2.ROR ? 1 : 0) << 7);
             operand = operand & 0xff;
             this.#setZN(operand);
             this.bus.write(location, operand);
@@ -638,7 +663,8 @@ export class CPU {
           break;
         }
 
-        default: return false;
+        default:
+          return false;
       }
 
       return true;
@@ -653,12 +679,12 @@ export class CPU {
 
   #pushStack(value: Byte): void {
     // Regard `value` as Byte.
-    this.bus.write((0x100 | this.rSP), value & 0xff);
+    this.bus.write(0x100 | this.rSP, value & 0xff);
     --this.rSP; // Hardware stacks grow downward!
   }
 
   #readAddress(addr: Address): Address {
-    return this.bus.read(addr) | this.bus.read(addr + 1) << 8;
+    return this.bus.read(addr) | (this.bus.read(addr + 1) << 8);
   }
 
   #setPageCrossed(a: Address, b: Address, inc = 1): void {
@@ -697,14 +723,15 @@ export class CPU {
 
     this.#pushStack(this.rPC >> 8);
 
-    const flags: Byte = this.fN as any << 7 |
-      this.fV as any << 6 |
-      1 << 5 |
-      (type === InterruptType.BRK_) as any << 4 |
-      this.fD as any << 3 |
-      this.fI as any << 2 |
-      this.fZ as any << 1 |
-      this.fC as any;
+    const flags: Byte =
+      ((this.fN as any) << 7) |
+      ((this.fV as any) << 6) |
+      (1 << 5) |
+      (((type === InterruptType.BRK_) as any) << 4) |
+      ((this.fD as any) << 3) |
+      ((this.fI as any) << 2) |
+      ((this.fZ as any) << 1) |
+      (this.fC as any);
     this.#pushStack(flags);
 
     this.fI = true;
@@ -743,7 +770,7 @@ export class CPU {
 
   skipDMACycles() {
     this.skipCycles += 513; // 256 read + 256 write + 1 dummy read.
-    this.skipCycles += (this.cycles & 1); // +1 if on odd cycle.
+    this.skipCycles += this.cycles & 1; // +1 if on odd cycle.
   }
 
   step(): void {
@@ -755,23 +782,24 @@ export class CPU {
 
     this.skipCycles = 0;
 
-    const psw: number = this.fN as any << 7 |
-      this.fV as any << 6 |
-      1 << 5 |
-      this.fD as any << 3 |
-      this.fI as any << 2 |
-      this.fZ as any << 1 |
-      this.fC as any;
+    const psw: number =
+      ((this.fN as any) << 7) |
+      ((this.fV as any) << 6) |
+      (1 << 5) |
+      ((this.fD as any) << 3) |
+      ((this.fI as any) << 2) |
+      ((this.fZ as any) << 1) |
+      (this.fC as any);
 
     console.debug(
       `CPU: ${this.rPC.toString(16)} -> ` +
-      `${this.bus.read(this.rPC).toString(16)}\n` +
-      `     A: ${this.rA.toString(16)}\n` +
-      `     X: ${this.rX.toString(16)}\n` +
-      `     Y: ${this.rY.toString(16)}\n` +
-      `     P: ${psw.toString(16)}\n` +
-      `     SP: ${this.rSP.toString(16)}\n` +
-      `     CYC: ${(this.cycles - 1) * 3 % 341}\n`);
+        `${this.bus.read(this.rPC).toString(16)}\n` +
+        `     A: ${this.rA.toString(16)}\n` +
+        `     X: ${this.rX.toString(16)}\n` +
+        `     Y: ${this.rY.toString(16)}\n` +
+        `     P: ${psw.toString(16)}\n` +
+        `     SP: ${this.rSP.toString(16)}\n` +
+        `     CYC: ${((this.cycles - 1) * 3) % 341}\n`);
 
     const opcode: Byte = this.bus.read(this.rPC++);
     const cycleLength: number = CPUOpcodes.operationCycles[opcode];
@@ -781,10 +809,14 @@ export class CPU {
     //
     // ExecuteImplied must be called first and ExecuteBranch must be before
     // ExecuteType0.
-    if (cycleLength &&
-        (this.#executeImplied(opcode) || this.#executeBranch(opcode) ||
-          this.#executeType1(opcode) || this.#executeType2(opcode) ||
-          this.#executeType0(opcode))) {
+    if (
+      cycleLength &&
+      (this.#executeImplied(opcode) ||
+        this.#executeBranch(opcode) ||
+        this.#executeType1(opcode) ||
+        this.#executeType2(opcode) ||
+        this.#executeType0(opcode))
+    ) {
       this.skipCycles += cycleLength;
     } else {
       console.error(`Unrecognized opcode: ${opcode.toString(16)}.`);

@@ -24,11 +24,14 @@ export class PictureBus {
     } else if (addr < 0x3eff) {
       // Name tables upto 0x3000, then mirrored upto 3eff
       const index = addr & 0x3ff;
-      if (addr < 0x2400) { // NT0
+      if (addr < 0x2400) {
+        // NT0
         return this.ram[this.nameTable0 + index];
-      } else if (addr < 0x2800) { // NT1
+      } else if (addr < 0x2800) {
+        // NT1
         return this.ram[this.nameTable1 + index];
-      } else if (addr < 0x2c00) { // NT2
+      } else if (addr < 0x2c00) {
+        // NT2
         return this.ram[this.nameTable2 + index];
       }
 
@@ -52,13 +55,17 @@ export class PictureBus {
     } else if (addr < 0x3eff) {
       // Name tables upto 0x3000, then mirrored upto 3eff
       const index = addr & 0x3ff;
-      if (addr < 0x2400) { // NT0
+      if (addr < 0x2400) {
+        // NT0
         this.ram[this.nameTable0 + index] = value;
-      } else if (addr < 0x2800) { // NT1
+      } else if (addr < 0x2800) {
+        // NT1
         this.ram[this.nameTable1 + index] = value;
-      } else if (addr < 0x2c00) { // NT2
+      } else if (addr < 0x2c00) {
+        // NT2
         this.ram[this.nameTable2 + index] = value;
-      } else { // NT3
+      } else {
+        // NT3
         this.ram[this.nameTable3 + index] = value;
       }
     } else if (addr < 0x3fff) {
@@ -87,23 +94,32 @@ export class PictureBus {
         break;
 
       case NameTableMirroring.OneScreenLower:
-        this.nameTable0 = this.nameTable1 =
-        this.nameTable2 = this.nameTable3 = 0;
+        this.nameTable0 =
+          this.nameTable1 =
+          this.nameTable2 =
+          this.nameTable3 =
+            0;
         console.log('Single Screen mirroring set with lower bank.');
         break;
 
       case NameTableMirroring.OneScreenHigher:
-        this.nameTable0 = this.nameTable1 =
-        this.nameTable2 = this.nameTable3 = 0x400;
+        this.nameTable0 =
+          this.nameTable1 =
+          this.nameTable2 =
+          this.nameTable3 =
+            0x400;
         console.log('Single Screen mirroring set with higher bank.');
         break;
 
       default:
-        this.nameTable0 = this.nameTable1 =
-        this.nameTable2 = this.nameTable3 = 0;
+        this.nameTable0 =
+          this.nameTable1 =
+          this.nameTable2 =
+          this.nameTable3 =
+            0;
         console.error(
           'Unsupported Name Table mirroring : ' +
-          this.mapper.getNameTableMirroring());
+            this.mapper.getNameTableMirroring());
     }
   }
 
