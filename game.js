@@ -3,10 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const { Controller, NES } = require('jsnes');
+const { NES } = require('jsnes');
 const {
   Font,
-  Image,
   IntRect,
   RenderWindow,
   Sound,
@@ -19,17 +18,17 @@ const {
 const nomnom = require('nomnom');
 const sleep = require('mz-modules/sleep');
 
-const opts = nomnom.options({
+const opts = nomnom.script('nes').options({
   frameRate: {
     abbr: 'f',
-    help: 'The frame rate. (defaults to 60)',
+    help: 'The frame rate.',
     default: 60,
   },
   rom: {
     position: 0,
     help: 'The ROM file path.',
     required: true,
-  }
+  },
 }).parse();
 
 const font = new Font();
@@ -43,31 +42,33 @@ const SCREEN_WIDTH = 256;
 const SCREEN_HEIGHT = 240;
 
 const soundBuffer = new SoundBuffer();
-const sound = new Sound();
 const window = new RenderWindow(
   new VideoMode(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2),
   'NES Emulator',
-  RenderWindow.Style.Close | RenderWindow.Style.Titlebar);
+  RenderWindow.Style.Close | RenderWindow.Style.Titlebar); // eslint-disable-line
 window.setFramerateLimit(opts.frameRate);
 
 const screenTexture = new Texture();
 const screenBuffer = Buffer.alloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+for (let i = 0; i < screenBuffer.byteLength / 4; i++) {
+  screenBuffer.writeUInt8(0xff, i * 4 + 3); // Each pixel's alpha
+}
 screenTexture.create(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 let currentSamples = [];
 const nes = new NES({
   onFrame(frameBuffer) {
     for (let i = 0; i < frameBuffer.length; i++) {
-      screenBuffer.writeUInt8(frameBuffer[i] >> 16, i * 4);
-      screenBuffer.writeUInt8((frameBuffer[i] >> 8) & 0xff, i * 4 + 1);
-      screenBuffer.writeUInt8((frameBuffer[i]) & 0xff, i * 4 + 2);
-      screenBuffer.writeUInt8(0xff, i * 4 + 3);
+      screenBuffer.writeUInt8(frameBuffer[i] >> 16, i * 4); // eslint-disable-line
+      screenBuffer.writeUInt8((frameBuffer[i] >> 8) & 0xff, i * 4 + 1); // eslint-disable-line
+      screenBuffer.writeUInt8((frameBuffer[i]) & 0xff, i * 4 + 2); // eslint-disable-line
     }
     screenTexture.update(screenBuffer);
   },
   onStatusUpdate: console.log,
-  onAudioSample: function(left, right) {
+  onAudioSample: (left, right) => {
     currentSamples.push(left * 32768);
+    currentSamples.push(right * 32768);
   },
 });
 
@@ -78,6 +79,16 @@ nes.loadROM(
   fs.readFileSync(
     path.resolve(process.cwd(), opts.rom),
     { encoding: 'binary' }));
+
+function checkSound() {
+  if (!currentSamples.length) return false;
+  for (let i = 0; i < currentSamples.length; i += 2) {
+    if (currentSamples[i] || currentSamples[i + 1]) {
+      return true;
+    }
+  }
+  return false;
+}
 
 (async () => {
   let last = Date.now();
@@ -112,11 +123,13 @@ nes.loadROM(
     window.draw(fpsText);
     window.display();
 
-    soundBuffer.loadFromSamples(currentSamples, 1, 44100);
-    const sound = new Sound(soundBuffer);
-    sound.setVolume(100);
-    sound.play();
-    currentSamples = [];
+    if (checkSound()) {
+      soundBuffer.loadFromSamples(currentSamples, 2, 44100);
+      const sound = new Sound(soundBuffer);
+      sound.setVolume(100);
+      sound.play();
+      currentSamples = [];
+    }
 
     await sleep(0);
   }
