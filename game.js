@@ -59,7 +59,7 @@ const p2 = new KBDController(nes, 2);
 
 nes.loadROM(
   fs.readFileSync(
-    path.join(process.cwd(), opts.rom),
+    path.resolve(process.cwd(), opts.rom),
     { encoding: 'binary' }));
 
 (async () => {
