@@ -4,8 +4,21 @@ const fs = require('fs');
 const path = require('path');
 
 const { Controller, NES } = require('jsnes');
-const { Image, IntRect, RenderWindow, Sprite, Texture, VideoMode } = require('sfml.js');
+const {
+  Font,
+  Image,
+  IntRect,
+  RenderWindow,
+  Sound,
+  SoundBuffer,
+  Sprite,
+  Text,
+  Texture,
+  VideoMode,
+} = require('sfml.js');
 const nomnom = require('nomnom');
+const sleep = require('mz-modules/sleep');
+
 const opts = nomnom.options({
   frameRate: {
     abbr: 'f',
@@ -17,17 +30,20 @@ const opts = nomnom.options({
     help: 'The ROM file path.',
     required: true,
   }
-  // keybindings: {
-  //   abbr: 'k',
-  //   help: 'Keybindings configuration file path.',
-  // }
 }).parse();
+
+const font = new Font();
+font.loadFromFileSync(path.join(__dirname, './fixedsys.ttf'));
+const fpsText = new Text('FPS: -', font, 12);
+fpsText.setPosition(20, 20);
 
 const KBDController = require('./controller');
 
 const SCREEN_WIDTH = 256;
 const SCREEN_HEIGHT = 240;
 
+const soundBuffer = new SoundBuffer();
+const sound = new Sound();
 const window = new RenderWindow(
   new VideoMode(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2),
   'NES Emulator',
@@ -38,6 +54,7 @@ const screenTexture = new Texture();
 const screenBuffer = Buffer.alloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
 screenTexture.create(SCREEN_WIDTH, SCREEN_HEIGHT);
 
+let currentSamples = [];
 const nes = new NES({
   onFrame(frameBuffer) {
     for (let i = 0; i < frameBuffer.length; i++) {
@@ -50,7 +67,7 @@ const nes = new NES({
   },
   onStatusUpdate: console.log,
   onAudioSample: function(left, right) {
-    //
+    currentSamples.push(left * 32768);
   },
 });
 
@@ -63,6 +80,7 @@ nes.loadROM(
     { encoding: 'binary' }));
 
 (async () => {
+  let last = Date.now();
   while (window.isOpen()) {
     let event;
     while ((event = window.pollEvent())) {
@@ -80,6 +98,10 @@ nes.loadROM(
     }
 
     nes.frame();
+    const now = Date.now();
+    const fps = (1000 / (now - last)).toFixed();
+    fpsText.setString(`FPS: ${fps}`);
+    last = now;
 
     window.clear(0xffffffff);
     const sprite = new Sprite(
@@ -87,6 +109,15 @@ nes.loadROM(
       new IntRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
     sprite.scale(2, 2);
     window.draw(sprite);
+    window.draw(fpsText);
     window.display();
+
+    soundBuffer.loadFromSamples(currentSamples, 1, 44100);
+    const sound = new Sound(soundBuffer);
+    sound.setVolume(100);
+    sound.play();
+    currentSamples = [];
+
+    await sleep(0);
   }
 })();
