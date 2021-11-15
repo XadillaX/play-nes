@@ -19,7 +19,9 @@ class Controller {
   keyDown(codeStr) {
     for (const key in this.mapping) {
       if (this.mapping[key] === codeStr) {
-        this.nes.buttonDown(this.num, jsnes.Controller[`BUTTON_${key.toUpperCase()}`]);
+        this.nes.buttonDown(
+          this.num,
+          jsnes.Controller[`BUTTON_${key.toUpperCase()}`]);
       }
     }
   }
@@ -27,7 +29,9 @@ class Controller {
   keyUp(codeStr) {
     for (const key in this.mapping) {
       if (this.mapping[key] === codeStr) {
-        this.nes.buttonUp(this.num, jsnes.Controller[`BUTTON_${key.toUpperCase()}`]);
+        this.nes.buttonUp(
+          this.num,
+          jsnes.Controller[`BUTTON_${key.toUpperCase()}`]);
       }
     }
   }

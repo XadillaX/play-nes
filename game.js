@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const { NES } = require('jsnes');
 const {
   Font,
   IntRect,
@@ -15,25 +14,36 @@ const {
   Texture,
   VideoMode,
 } = require('sfml.js');
+const { NES } = require('jsnes');
 const nomnom = require('nomnom');
 const sleep = require('mz-modules/sleep');
 
-const opts = nomnom.script('nes').options({
-  frameRate: {
-    abbr: 'f',
-    help: 'The frame rate.',
-    default: 60,
-  },
-  rom: {
-    position: 0,
-    help: 'The ROM file path.',
-    required: true,
-  },
-}).parse();
+const opts = nomnom
+  .script('nes')
+  .options({
+    frameRate: {
+      metavar: 'RATE',
+      abbr: 'f',
+      help: 'The frame rate.',
+      default: 60,
+    },
+    rom: {
+      position: 0,
+      help: 'The ROM file path.',
+      required: true,
+    },
+    scale: {
+      metavar: 'SCALE',
+      abbr: 's',
+      help: 'The scale value.',
+      default: 2,
+    },
+  })
+  .parse();
 
 const font = new Font();
 font.loadFromFileSync(path.join(__dirname, './fixedsys.ttf'));
-const fpsText = new Text('FPS: -', font, 12);
+const fpsText = new Text('FPS: -', font, 12 * opts.scale);
 fpsText.setPosition(20, 20);
 
 const KBDController = require('./controller');
@@ -43,9 +53,10 @@ const SCREEN_HEIGHT = 240;
 
 const soundBuffer = new SoundBuffer();
 const window = new RenderWindow(
-  new VideoMode(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2),
+  new VideoMode(SCREEN_WIDTH * opts.scale, SCREEN_HEIGHT * opts.scale),
   'NES Emulator',
-  RenderWindow.Style.Close | RenderWindow.Style.Titlebar); // eslint-disable-line
+  // eslint-disable-next-line
+  RenderWindow.Style.Close | RenderWindow.Style.Titlebar);
 window.setFramerateLimit(opts.frameRate);
 
 const screenTexture = new Texture();
@@ -59,9 +70,11 @@ let currentSamples = [];
 const nes = new NES({
   onFrame(frameBuffer) {
     for (let i = 0; i < frameBuffer.length; i++) {
-      screenBuffer.writeUInt8(frameBuffer[i] >> 16, i * 4); // eslint-disable-line
-      screenBuffer.writeUInt8((frameBuffer[i] >> 8) & 0xff, i * 4 + 1); // eslint-disable-line
-      screenBuffer.writeUInt8((frameBuffer[i]) & 0xff, i * 4 + 2); // eslint-disable-line
+      /* eslint-disable no-bitwise */
+      screenBuffer.writeUInt8(frameBuffer[i] >> 16, i * 4);
+      screenBuffer.writeUInt8((frameBuffer[i] >> 8) & 0xff, i * 4 + 1);
+      screenBuffer.writeUInt8(frameBuffer[i] & 0xff, i * 4 + 2);
+      /* eslint-enable */
     }
     screenTexture.update(screenBuffer);
   },
@@ -77,8 +90,7 @@ const p2 = new KBDController(nes, 2);
 
 nes.loadROM(
   fs.readFileSync(
-    path.resolve(process.cwd(), opts.rom),
-    { encoding: 'binary' }));
+    path.resolve(process.cwd(), opts.rom), { encoding: 'binary' }));
 
 function checkSound() {
   if (!currentSamples.length) return false;
@@ -95,8 +107,10 @@ function checkSound() {
   while (window.isOpen()) {
     let event;
     while ((event = window.pollEvent())) {
-      if (event.type === 'Closed' ||
-          (event.type === 'KeyPressed' && event.key.codeStr === 'Escape')) {
+      if (
+        event.type === 'Closed' ||
+        (event.type === 'KeyPressed' && event.key.codeStr === 'Escape')
+      ) {
         window.close();
         process.exit(0);
       } else if (event.type === 'KeyPressed') {
@@ -118,7 +132,7 @@ function checkSound() {
     const sprite = new Sprite(
       screenTexture,
       new IntRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
-    sprite.scale(2, 2);
+    sprite.scale(opts.scale, opts.scale);
     window.draw(sprite);
     window.draw(fpsText);
     window.display();

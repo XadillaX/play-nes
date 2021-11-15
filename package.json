@@ -2,7 +2,10 @@
   "name": "nes",
   "version": "1.0.0",
   "description": "Desktop NES emulator in Node.js",
-  "main": "index.js",
+  "main": "game.js",
+  "bin": {
+    "nes": "./bin/nes"
+  },
   "scripts": {},
   "repository": {
     "type": "git",
@@ -29,7 +32,6 @@
     "jsnes": "^1.2.1",
     "mz-modules": "^2.1.0",
     "nomnom": "^1.8.1",
-    "scarlet-task": "^1.1.0",
     "sfml.js": "0.0.1-preview.38"
   }
 }
