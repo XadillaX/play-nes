@@ -29,7 +29,7 @@ const opts = nomnom
     },
     rom: {
       position: 0,
-      help: 'The ROM file path.',
+      help: 'The ROM file path or built-in ROM name.',
       required: true,
     },
     scale: {
@@ -40,6 +40,26 @@ const opts = nomnom
     },
   })
   .parse();
+
+switch (opts.rom) {
+  case 'contra':
+    opts.rom = path.join(__dirname, './roms/Contra (U).nes');
+    break;
+
+  case 'croom':
+    opts.rom = path.join(__dirname, './roms/croom.nes');
+    break;
+
+  case 'dgolf':
+    opts.rom = path.join(__dirname, './roms/dgolf.nes');
+    break;
+
+  case 'transmissing':
+    opts.rom = path.join(__dirname, './roms/InterglacticTransmissing.nes');
+    break;
+
+  default: break;
+}
 
 const font = new Font();
 font.loadFromFileSync(path.join(__dirname, './fixedsys.ttf'));
