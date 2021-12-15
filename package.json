@@ -32,6 +32,6 @@
     "jsnes": "^1.2.1",
     "mz-modules": "^2.1.0",
     "nomnom": "^1.8.1",
-    "sfml.js": "0.0.1-preview.38"
+    "sfml.js": "0.0.1-preview.40"
   }
 }

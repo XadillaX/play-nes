@@ -1,6 +1,6 @@
-# nodenes
+# play-nes
 
-Desktop NES emulator in Node.js.
+A cross-platform desktop NES emulator powered by OpenGL in Node.js.
 
 ## Usage
 
