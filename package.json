@@ -1,6 +1,6 @@
 {
   "name": "play-nes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Desktop NES emulator in Node.js",
   "main": "game.js",
   "bin": {
