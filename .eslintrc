@@ -1,5 +1,22 @@
 {
   "extends": [
     "eslint-config-egg"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "extends": [
+        "eslint-config-egg/typescript"
+      ]
+    }
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "ignorePatterns": [
+    "dist/"
   ]
 }

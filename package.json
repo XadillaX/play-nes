@@ -2,14 +2,38 @@
   "name": "play-nes",
   "version": "1.0.2",
   "description": "Desktop NES emulator in Node.js",
-  "main": "game.js",
+  "type": "module",
+  "main": "dist/game.js",
+  "types": "dist/game.d.ts",
   "bin": {
     "nes": "./bin/nes"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "lint": "eslint --ext .ts,.js src test bin/nes",
+    "test": "npm run build && node --test test/*.test.js",
+    "test:native": "npm run build && node test/native-smoke.js",
+    "prepare": "npm run build",
+    "prepack": "npm run check && npm run lint && npm test"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "src/",
+    "tsconfig.json",
+    "assets/play-nes-logo.png",
+    "assets/play-nes-console-logo.svg",
+    "fixedsys.ttf",
+    "keybindings.conf",
+    "roms/"
+  ],
+  "engines": {
+    "node": "^18.19.0 || >=20.5.0"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XadillaX/nodenes.git"
+    "url": "git+https://github.com/XadillaX/play-nes.git"
   },
   "keywords": [
     "NES"
@@ -17,21 +41,21 @@
   "author": "XadillaX <i@233.dev>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/XadillaX/nodenes/issues"
+    "url": "https://github.com/XadillaX/play-nes/issues"
   },
-  "homepage": "https://github.com/XadillaX/nodenes#readme",
+  "homepage": "https://github.com/XadillaX/play-nes#readme",
   "devDependencies": {
     "@types/ini": "^1.3.31",
-    "@types/node": "^16.11.6",
-    "@types/nomnom": "^0.0.29",
-    "eslint": "^6.8.0",
-    "eslint-config-egg": "^9.0.0"
+    "@types/node": "^20.19.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-egg": "^14.1.0",
+    "typescript": "~5.5.4"
   },
   "dependencies": {
     "ini": "^2.0.0",
-    "jsnes": "^1.2.1",
-    "mz-modules": "^2.1.0",
-    "nomnom": "^1.8.1",
-    "sfml.js": "0.0.1-preview.41"
+    "jsnes": "2.1.0",
+    "sfml.js": "1.0.0-rc.2"
   }
 }

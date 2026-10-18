@@ -1,4 +1,7 @@
 #!/usr/bin/env node
-'use strict';
+import { main } from '../dist/cli.js';
 
-require('../game');
+main().catch(error => {
+  console.error(`nes: ${error.message}`);
+  process.exitCode = 1;
+});
