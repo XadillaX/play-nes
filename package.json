@@ -1,6 +1,6 @@
 {
   "name": "play-nes",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Desktop NES emulator in Node.js",
   "type": "module",
   "main": "dist/game.js",
@@ -24,6 +24,7 @@
     "tsconfig.json",
     "assets/play-nes-logo.png",
     "assets/play-nes-console-logo.svg",
+    "assets/screenshots/",
     "fixedsys.ttf",
     "keybindings.conf",
     "roms/"

@@ -6,78 +6,57 @@
 
 <h1 align="center">play-nes</h1>
 
-<p align="center">
-  <strong>NES games, in a native desktop window.</strong><br>
-  A TypeScript player powered by <a href="https://github.com/bfirsh/jsnes">JSNES</a> and <a href="https://sfml.js.org/">sfml.js</a>.
-</p>
+play-nes is a desktop NES emulator written in TypeScript and running on Node.js. It uses [JSNES](https://github.com/bfirsh/jsnes) for emulation and [sfml.js](https://sfml.js.org/) for native windows, graphics and audio. Local ROM files and keyboard input for two players are supported.
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/play-nes">npm</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#games">Games</a> ·
-  <a href="#controls">Controls</a> ·
-  <a href="#development">Development</a>
-</p>
+## Screenshots
 
----
+| Contra | Concentration Room | NESert Golfing | Interglactic Transmissing! |
+| :---: | :---: | :---: | :---: |
+| [<img src="./assets/screenshots/contra.png" width="192" alt="Contra gameplay">](./assets/screenshots/contra.png) | [<img src="./assets/screenshots/concentration-room.png" width="192" alt="Concentration Room gameplay">](./assets/screenshots/concentration-room.png) | [<img src="./assets/screenshots/nesert-golfing.png" width="192" alt="NESert Golfing gameplay">](./assets/screenshots/nesert-golfing.png) | [<img src="./assets/screenshots/interglactic-transmissing.png" width="192" alt="Interglactic Transmissing! gameplay">](./assets/screenshots/interglactic-transmissing.png) |
 
-**Two players** · **256 × 240 video** · **48 kHz stereo audio** · **Your own ROMs**
+Captured from the player on macOS.
 
-## Quick start
+## Installation
 
-Install [play-nes from npm](https://www.npmjs.com/package/play-nes) to get the `nes` command:
+Install from [npm](https://www.npmjs.com/package/play-nes) and launch a bundled game:
 
 ```bash
-npm install -g play-nes
-nes contra
+$ npm install -g play-nes
+$ nes contra
 ```
 
-> **Release status:** npm currently publishes `play-nes@1.0.2`, which uses the previous SFML binding. This branch contains the unpublished TypeScript migration with **JSNES 2.1.0** and **sfml.js 1.0.0-rc.2**. To try this version, run it from a checkout below.
+Node.js 22 is recommended. Installation also requires Python and a C++20 compiler because sfml.js builds a native addon.
 
 <details>
-<summary><strong>Run the current checkout</strong></summary>
-
-Inside the `play-nes` project directory:
-
-```bash
-npm install
-node bin/nes contra
-```
-
-Here, `npm install` installs the project's dependencies and compiles TypeScript. Use `node bin/nes` wherever the examples below use `nes`, or run `npm link` to make this checkout available as the global command.
-
-</details>
-
-<details>
-<summary><strong>Build requirements for the rc2 version</strong></summary>
-
-Use **Node.js 22**; the supported range is `^18.19.0 || >=20.5.0`. sfml.js downloads SFML libraries and compiles a native addon during installation, so Python and a C++20 toolchain are required.
+<summary>Platform setup</summary>
 
 | Platform | Toolchain |
 | :--- | :--- |
-| macOS 13+ · Intel / Apple Silicon | Xcode Command Line Tools |
-| Linux · x64 | GCC or Clang, make, X11, OpenGL and audio development libraries |
-| Windows · x64 / ia32 | Visual Studio 2022 C++ Build Tools |
+| macOS 13+, Intel or Apple Silicon | Xcode Command Line Tools |
+| Linux x64 | GCC or Clang, make, X11, OpenGL and audio development libraries |
+| Windows x64 / ia32 | Visual Studio 2022 C++ Build Tools |
 
-See the [sfml.js installation guide](https://sfml.js.org/guide/getting-started) for setup commands. Run in a desktop session with an audio output device. This version has been verified on macOS with Node.js 22; Linux and Windows remain unverified.
+The [sfml.js installation guide](https://sfml.js.org/guide/getting-started) has the platform-specific commands. The supported Node.js range is `^18.19.0 || >=20.5.0`.
+
+A graphical desktop and an audio output device are required to run the player.
 
 </details>
 
-## Games
+## Usage
 
-Four ROMs are included. Pick an alias and start playing:
+Pass a ROM path to `nes`:
 
-| Game | Command |
-| :--- | :--- |
-| Contra | `nes contra` |
-| croom | `nes croom` |
-| dgolf | `nes dgolf` |
-| Interglactic Transmissing | `nes transmissing` |
+```sh
+$ nes "/path/to/your game.nes"
+```
 
-Or load a ROM from disk:
+The following aliases load the four bundled ROMs:
 
-```bash
-nes "/path/to/your game.nes"
+```sh
+$ nes contra        # Contra
+$ nes croom         # Concentration Room
+$ nes dgolf         # NESert Golfing
+$ nes transmissing  # Interglactic Transmissing!
 ```
 
 ## Controls
@@ -93,55 +72,52 @@ nes "/path/to/your game.nes"
 | Left | <kbd>A</kbd> | <kbd>←</kbd> |
 | Right | <kbd>D</kbd> | <kbd>→</kbd> |
 
-<kbd>Esc</kbd> quits. Closing the window also stops the audio Worker. Held buttons are released when the window loses focus.
+Press <kbd>Esc</kbd> or close the window to exit. The player releases held buttons when the window loses focus.
 
-Customize [keybindings.conf](./keybindings.conf) with [sfml.js key names](https://sfml.js.org/reference/enums/KeyboardKey.html), then restart the player.
+Edit [keybindings.conf](./keybindings.conf) to change the controls. Values must use [sfml.js key names](https://sfml.js.org/reference/enums/KeyboardKey.html). Restart the player to apply changes.
 
 ## Options
 
 ```bash
-nes contra --scale 3
-nes croom -f 60 -s 2
-nes --help
+$ nes contra --scale 3
+$ nes croom -f 60 -s 2
+$ nes --help
 ```
 
 | Option | Default | Description |
 | :--- | :---: | :--- |
 | `-s`, `--scale` | `2` | Scale the 256 × 240 frame; the default window is 512 × 480. |
-| `-f`, `--frameRate` | `60` | Emulation and display rate, from 10 to 240 fps in this branch. |
+| `-f`, `--frameRate` | `60` | Emulation and display rate, from 10 to 240 fps. |
 | `-h`, `--help` | — | Show usage and exit. |
 
-Changing the frame rate changes game speed too. Scale must be positive and produce whole-pixel window dimensions.
+Use `-f 60` for normal speed. This option controls emulation speed as well as the display rate, so increasing it also accelerates the game. Scale must be positive and produce whole-pixel window dimensions.
 
 ## Development
 
-The source lives in [`src/`](./src). `tsc` compiles it to ESM in `dist/`; the player runs directly in Node.js.
+To run from source:
 
 ```bash
-npm run build        # Compile TypeScript after editing
-npm run check        # Strict type checking
-npm run lint         # Check code style
-npm test             # Build and run tests without opening a window
-npm run test:native  # Exercise all four ROMs with native video and audio
+$ git clone https://github.com/XadillaX/play-nes.git
+$ cd play-nes
+$ npm install
+$ node bin/nes contra
 ```
 
-<details>
-<summary><strong>How the player works</strong></summary>
+`$ npm install` installs dependencies and compiles [`src/`](./src) into `dist/`. Run `$ npm run build` after changing TypeScript. Use `$ npm link` to register the local checkout as the `nes` command.
 
-| Part | Responsibility |
-| :--- | :--- |
-| [`cli.ts`](./src/cli.ts) | Parse arguments and resolve ROM aliases before loading native graphics. |
-| [`game.ts`](./src/game.ts) | Own the window and reuse the image, texture, sprite and FPS text. |
-| [`controller.ts`](./src/controller.ts) | Translate keyboard events into two shared button masks. |
-| [`audio-worker.ts`](./src/audio-worker.ts) · [`emulator.ts`](./src/emulator.ts) | Run JSNES in the SFML audio Worker and fill reusable native PCM buffers. |
-| [`shared-state.ts`](./src/shared-state.ts) | Share the latest complete frame and input state across threads. |
+```bash
+$ npm run check        # Check TypeScript types
+$ npm run lint         # Run ESLint
+$ npm test             # Build and run tests
+$ npm run test:native  # Open each bundled ROM and check video, input and audio
+```
 
-Audio demand drives emulation. Samples left at a block boundary carry over to the next callback, including silence. The main thread displays complete frames and yields to Node.js between draws; shutdown waits for the audio Worker to close.
+We use audio consumption to pace emulation. JSNES runs in an audio Worker and advances when SFML requests more PCM samples. The main thread draws the latest complete frame, so rendering does not block audio generation.
 
-</details>
+The threads exchange video frames and controller state through shared memory. The main thread reuses its texture and sprite to limit allocation, then yields between frames so Node.js can process I/O. The implementation is in [`emulator.ts`](./src/emulator.ts), [`shared-state.ts`](./src/shared-state.ts) and [`game.ts`](./src/game.ts).
 
 ## Contributing
 
-[Issues](https://github.com/XadillaX/play-nes/issues) and pull requests are welcome. For bug reports, include the ROM name, Node.js version, operating system and steps to reproduce.
+For bug reports, [open an issue](https://github.com/XadillaX/play-nes/issues) with the ROM name, operating system, Node.js version, reproduction steps and any error output. Pull requests are welcome.
 
 [MIT licensed](./LICENSE).
